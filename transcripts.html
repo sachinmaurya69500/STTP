@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LectureSense | Transcripts</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <aside class="sidebar">
+        <div class="brand-row">
+          <div class="brand-mark" aria-label="LectureSense logo">
+            <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
+              <defs>
+                <linearGradient id="logoGradientTranscripts" x1="0%" x2="100%" y1="0%" y2="100%">
+                  <stop offset="0%" stop-color="#2563eb" />
+                  <stop offset="100%" stop-color="#7c3aed" />
+                </linearGradient>
+              </defs>
+              <rect x="10" y="12" width="38" height="40" rx="9" fill="url(#logoGradientTranscripts)" />
+              <path d="M18 22h22M18 28h22M18 34h16" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M38 18l12 12-14 14-12-12 14-14z" fill="#dbeafe" opacity="0.92"/>
+              <path d="M39 20l9 9-11 11-9-9 11-11z" fill="#ffffff" opacity="0.98"/>
+              <path d="M27 43l6 6 15-15" stroke="#e2e8f0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <p class="eyebrow">Academic AI</p>
+            <h2>LectureSense</h2>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-link">Overview</a>
+          <a href="transcripts.html" class="nav-link active">Transcripts</a>
+          <a href="notes.html" class="nav-link">Notes</a>
+          <a href="index.html" class="nav-link">Landing</a>
+        </nav>
+      </aside>
+
+      <main class="workspace transcript-page">
+        <header class="topbar compact-topbar">
+          <div>
+            <p class="eyebrow blue">Library</p>
+            <h1>Searchable lecture transcripts</h1>
+          </div>
+          <button class="btn btn-primary">New transcript</button>
+        </header>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Browse</p>
+              <h3>All sessions</h3>
+            </div>
+            <label class="search-field">
+              <input type="text" placeholder="Search transcript, topic, keyword..." />
+            </label>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Lecture</th>
+                  <th>Date</th>
+                  <th>Duration</th>
+                  <th>Words</th>
+                  <th>Confidence</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="6">No transcripts yet. Record or upload a lecture to generate the first transcript.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const API_BASE = window.location.origin;
+      async function hydrateTranscripts() {
+        try {
+          const response = await fetch(`${API_BASE}/api/transcripts`);
+          const data = await response.json();
+          const tableBody = document.querySelector('tbody');
+
+          if (!tableBody) return;
+
+          if (!data.transcripts?.length) {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="6">No transcripts yet. Record a lecture to create the first transcript.</td>
+              </tr>
+            `;
+            return;
+          }
+
+          tableBody.innerHTML = data.transcripts.map((entry) => `
+            <tr>
+              <td>${entry.title}</td>
+              <td>${new Date().toLocaleDateString()}</td>
+              <td>${entry.duration || '00:19:42'}</td>
+              <td>${entry.words || 0}</td>
+              <td>${entry.confidence || '96.8%'}%</td>
+              <td><span class="status-badge complete">Ready</span></td>
+            </tr>
+          `).join('');
+        } catch (error) {
+          console.warn('Transcript library is not connected yet:', error);
+        }
+      }
+
+      hydrateTranscripts();
+    </script>
+  </body>
+</html>

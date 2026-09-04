@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LectureSense | Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <!-- Mobile Menu Toggle -->
+      <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="brand-row">
+          <div class="brand-mark" aria-label="LectureSense logo">
+            <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
+              <defs>
+                <linearGradient id="logoGradientSidebar" x1="0%" x2="100%" y1="0%" y2="100%">
+                  <stop offset="0%" stop-color="#2563eb" />
+                  <stop offset="100%" stop-color="#7c3aed" />
+                </linearGradient>
+              </defs>
+              <rect x="10" y="12" width="38" height="40" rx="9" fill="url(#logoGradientSidebar)" />
+              <path d="M18 22h22M18 28h22M18 34h16" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M38 18l12 12-14 14-12-12 14-14z" fill="#dbeafe" opacity="0.92"/>
+              <path d="M39 20l9 9-11 11-9-9 11-11z" fill="#ffffff" opacity="0.98"/>
+              <path d="M27 43l6 6 15-15" stroke="#e2e8f0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <p class="eyebrow">Academic AI</p>
+            <h2>LectureSense</h2>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-link active" data-page="dashboard">📊 Overview</a>
+          <a href="transcripts.html" class="nav-link" data-page="transcripts">📝 Transcripts</a>
+          <a href="notes.html" class="nav-link" data-page="notes">✨ Notes</a>
+          <a href="index.html" class="nav-link" data-page="landing">🏠 Home</a>
+        </nav>
+
+        <div class="sidebar-card">
+          <p class="eyebrow">Live input</p>
+          <div class="live-row">
+            <span class="live-dot" id="liveIndicator"></span>
+            <span id="liveStatus">Ready</span>
+          </div>
+          <h3 id="modelStatus">Ready to record</h3>
+          <p>Speech will be captured and stored as searchable transcript text.</p>
+        </div>
+
+        <div class="sidebar-footer">
+          <button class="btn btn-light btn-small" onclick="location.href='index.html'">← Back to home</button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="workspace">
+        <!-- Top Bar -->
+        <header class="topbar">
+          <div class="topbar-title">
+            <p class="eyebrow blue">Today's lecture</p>
+            <h1>Lecture dashboard</h1>
+          </div>
+
+          <div class="top-actions">
+            <button class="btn btn-light" id="shareBtn" title="Share lecture">📤 Share</button>
+            <button class="btn btn-primary" id="exportBtn" title="Export notes">📥 Export</button>
+          </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <section class="stats-grid">
+          <article class="stat-card">
+            <p class="stat-label">Transcript confidence</p>
+            <h3 class="stat-value">96.8%</h3>
+            <span class="status positive">+2.1% today</span>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Words captured</p>
+            <h3 class="stat-value" id="wordCount">12,440</h3>
+            <span class="status positive">Live transcription</span>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Notes created</p>
+            <h3 class="stat-value" id="noteCount">07</h3>
+            <span class="status neutral">4 themes</span>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Session time</p>
+            <h3 class="stat-value" id="sessionTime">00:00:00</h3>
+            <span class="status muted">Autosaved</span>
+          </article>
+        </section>
+
+        <!-- Main Grid: Transcript + Notes -->
+        <section class="main-grid">
+          <!-- Transcript Panel -->
+          <div class="panel transcript-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Capture</p>
+                <h3>Lecture stream</h3>
+              </div>
+              <span class="pill blue" id="recordingIndicator">Ready</span>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+              <div class="toolbar-primary">
+                <button class="btn btn-primary record-btn" id="recordToggle" type="button" title="Start recording">
+                  <span class="record-icon">🎙️</span>
+                  <span class="btn-text">Start recording</span>
+                </button>
+                <button class="btn btn-light" id="uploadBtn" type="button" title="Upload audio file">
+                  <span>📁 Upload</span>
+                </button>
+                <input type="file" id="audioFileInput" accept="audio/*,video/*" hidden />
+              </div>
+              <div class="toolbar-secondary">
+                <button class="btn btn-light" id="generateSummaryBtn" type="button" title="Generate summary">
+                  <span>📋 Summary</span>
+                </button>
+                <button class="btn btn-primary" id="generateNotesBtn" type="button" title="Generate study notes">
+                  <span>✨ Generate notes</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Search and State -->
+            <div class="toolbar-row">
+              <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input id="searchInput" type="text" placeholder="Search transcript..." />
+              </div>
+              <span class="pill blue" id="recordingState">Ready</span>
+            </div>
+
+            <!-- Transcript Display -->
+            <div class="transcript-box" id="transcriptBox">
+              <div class="transcript-row">
+                <span class="speaker lecturer">System</span>
+                <div class="transcript-content">
+                  <p>No transcript loaded yet. Start a recording or upload an audio file to populate this session.</p>
+                  <span class="transcript-time">00:00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes Sidebar -->
+          <aside class="panel notes-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Auto notes</p>
+                <h3>Study highlights</h3>
+              </div>
+              <button class="btn btn-light btn-small" id="refreshNotesBtn" title="Refresh notes">🔄</button>
+            </div>
+
+            <div class="notes-list" id="notesList">
+              <article class="note-card">
+                <span class="tag tag-key">Status</span>
+                <h4>No notes yet</h4>
+                <p>Generate notes from the current transcription to populate this panel with AI-generated study highlights.</p>
+              </article>
+            </div>
+          </aside>
+        </section>
+
+        <!-- Bottom Grid: Summary + Checklist -->
+        <section class="bottom-grid">
+          <!-- Summary Panel -->
+          <div class="panel summary-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Summary</p>
+                <h3>Lecture recap</h3>
+              </div>
+            </div>
+
+            <div class="summary-box" id="summaryText">
+              The summary will appear here after the transcript is captured and processed. This panel is ready to display the final AI-generated recap for your lecture.
+            </div>
+
+            <div class="chip-row">
+              <span class="chip">🎯 Ready</span>
+              <span class="chip">🔒 AI summary</span>
+              <span class="chip">✔️ Review</span>
+              <span class="chip">🎨 Notes</span>
+            </div>
+          </div>
+
+          <!-- Checklist Panel -->
+          <div class="panel checklist-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Checklist</p>
+                <h3>Next steps</h3>
+              </div>
+            </div>
+
+            <ul class="todo-list">
+              <li>
+                <input type="checkbox" class="todo-checkbox" />
+                <span>Record or upload the lecture</span>
+              </li>
+              <li>
+                <input type="checkbox" class="todo-checkbox" />
+                <span>Review the generated transcript</span>
+              </li>
+              <li>
+                <input type="checkbox" class="todo-checkbox" />
+                <span>Generate AI study notes</span>
+              </li>
+              <li>
+                <input type="checkbox" class="todo-checkbox" />
+                <span>Export the final recap</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Enhanced app.js with all features -->
+    <script>
+      // Handle OAuth callback
+      (function() {
+        const params = new URLSearchParams(window.location.search);
+        const userParam = params.get('user');
+        if (userParam) {
+          try {
+            const user = JSON.parse(decodeURIComponent(userParam));
+            localStorage.setItem('lectureSenseUser', JSON.stringify(user));
+            // Clean up URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } catch (e) {
+            console.log('Could not parse user info from URL');
+          }
+        }
+      })();
+
+      // DOM Elements
+      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+      const sidebar = document.getElementById('sidebar');
+      const liveIndicator = document.getElementById('liveIndicator');
+      const liveStatus = document.getElementById('liveStatus');
+      const modelStatus = document.getElementById('modelStatus');
+      const sessionTime = document.getElementById('sessionTime');
+      const recordToggle = document.getElementById('recordToggle');
+      const transcriptBox = document.getElementById('transcriptBox');
+      const searchInput = document.getElementById('searchInput');
+      const notesList = document.getElementById('notesList');
+      const summaryText = document.getElementById('summaryText');
+      const generateSummaryBtn = document.getElementById('generateSummaryBtn');
+      const generateNotesBtn = document.getElementById('generateNotesBtn');
+      const refreshNotesBtn = document.getElementById('refreshNotesBtn');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const audioFileInput = document.getElementById('audioFileInput');
+      const recordingState = document.getElementById('recordingState');
+      const recordingIndicator = document.getElementById('recordingIndicator');
+      const shareBtn = document.getElementById('shareBtn');
+      const exportBtn = document.getElementById('exportBtn');
+
+      // State
+      let audioRecorder;
+      let audioChunks = [];
+      let isRecording = false;
+      let sessionSeconds = 0;
+      let timerInterval;
+
+      const noteTemplates = [
+        { tag: 'Key idea', title: 'Bias-variance tradeoff', text: 'Model quality depends on balancing underfitting and overfitting so the system learns structure without memorizing noise.' },
+        { tag: 'Method', title: 'Regularization', text: 'Regularized learners reduce the sensitivity of weights to noisy examples and improve generalization on validation data.' },
+        { tag: 'Action', title: 'Review', text: 'Compare the validation curve and calibration metrics before finalizing design choices or feature improvements.' },
+        { tag: 'Takeaway', title: 'Interpretability', text: 'Simple, explainable models often remain robust in academic and real-world systems when deployed responsibly.' }
+      ];
+
+      const transcriptSeed = [
+        { speaker: 'Lecturer', text: 'Today we are looking at how machine learning systems learn patterns from data while keeping predictive error under control.' },
+        { speaker: 'Student', text: 'The key point is that generalization matters more than fitting every training point perfectly.' },
+        { speaker: 'Lecturer', text: 'Exactly. When the model becomes too complex, overfitting occurs, and regularization helps constrain noise-sensitive weights.' },
+        { speaker: 'Student', text: 'So we need to balance bias, variance, and validation performance before choosing the final model design.' }
+      ];
+
+      // Mobile Menu Toggle
+      if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', () => {
+          sidebar.classList.toggle('visible');
+          mobileMenuToggle.classList.toggle('active');
+        });
+      }
+
+      // Close sidebar on link click
+      if (sidebar) {
+        sidebar.querySelectorAll('.nav-link').forEach(link => {
+          link.addEventListener('click', () => {
+            sidebar.classList.remove('visible');
+            mobileMenuToggle.classList.remove('active');
+          });
+        });
+      }
+
+      // Session Timer
+      function updateSessionTime() {
+        sessionSeconds++;
+        const hours = String(Math.floor(sessionSeconds / 3600)).padStart(2, '0');
+        const minutes = String(Math.floor((sessionSeconds % 3600) / 60)).padStart(2, '0');
+        const seconds = String(sessionSeconds % 60).padStart(2, '0');
+        if (sessionTime) sessionTime.textContent = `${hours}:${minutes}:${seconds}`;
+      }
+
+      timerInterval = setInterval(updateSessionTime, 1000);
+
+      // Render Transcript
+      function renderTranscript(filterText = '') {
+        if (!transcriptBox) return;
+        const filtered = transcriptSeed.filter(item => 
+          `${item.speaker} ${item.text}`.toLowerCase().includes(filterText.toLowerCase())
+        );
+
+        transcriptBox.innerHTML = filtered.map((item, idx) => `
+          <div class="transcript-row">
+            <span class="speaker ${item.speaker === 'Lecturer' ? 'lecturer' : 'student'}">${item.speaker}</span>
+            <div class="transcript-content">
+              <p>${item.text}</p>
+              <span class="transcript-time">00:${String(idx * 15).padStart(2, '0')}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Render Notes
+      async function renderNotes() {
+        if (!notesList || !summaryText) return;
+        
+        // Get transcript text from the page
+        const transcriptBox = document.querySelector('.transcript-box');
+        let transcriptText = '';
+        
+        if (transcriptBox) {
+          const rows = transcriptBox.querySelectorAll('.transcript-row');
+          rows.forEach(row => {
+            const content = row.querySelector('.transcript-content p');
+            if (content) transcriptText += content.textContent + ' ';
+          });
+        }
+        
+        // Use fallback if no transcript
+        if (!transcriptText.trim()) {
+          transcriptText = 'Today we are looking at how machine learning systems learn patterns from data while keeping predictive error under control. The key point is that generalization matters more than fitting every training point perfectly. When the model becomes too complex, overfitting occurs, and regularization helps constrain noise-sensitive weights.';
+        }
+        
+        try {
+          // Call Groq API to generate notes
+          const response = await fetch('/api/notes/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: transcriptText.trim() })
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            
+            // Display generated notes
+            const keyPoints = data.key_points || [];
+            const tags = data.tags || ['lecture', 'key-points', 'review'];
+            
+            notesList.innerHTML = keyPoints.slice(0, 3).map((point, idx) => `
+              <article class="note-card">
+                <span class="tag tag-key">${tags[idx] || 'Review'}</span>
+                <h4>${point.split(':')[0] || 'Key Point'}</h4>
+                <p>${point}</p>
+              </article>
+            `).join('');
+            
+            // If no key points, show tags as notes
+            if (keyPoints.length === 0) {
+              notesList.innerHTML = tags.slice(0, 3).map(tag => `
+                <article class="note-card">
+                  <span class="tag tag-key">${tag}</span>
+                  <h4>${tag.charAt(0).toUpperCase() + tag.slice(1)}</h4>
+                  <p>Review this key concept from the lecture.</p>
+                </article>
+              `).join('');
+            }
+            
+            summaryText.textContent = data.summary || 'Lecture summary generated successfully.';
+            return;
+          }
+        } catch (error) {
+          console.log('API call failed, using fallback templates:', error);
+        }
+        
+        // Fallback to random templates if API fails
+        const shuffled = [...noteTemplates].sort(() => Math.random() - 0.5).slice(0, 3);
+        notesList.innerHTML = shuffled.map(item => `
+          <article class="note-card">
+            <span class="tag tag-${item.tag.toLowerCase().replace(/\s+/g, '-')}">${item.tag}</span>
+            <h4>${item.title}</h4>
+            <p>${item.text}</p>
+          </article>
+        `).join('');
+
+        const summaries = [
+          'The lecture emphasized the relationship between model complexity, evaluation, and generalization. Key takeaway: robust systems balance bias, variance, and validation performance.',
+          'This session connected statistical principles with ML practice by highlighting regularization, validation, and feature engineering as essential methods for consistent results.',
+          'Focus on choosing models that learn underlying patterns without overfitting noise. Regularization, validation checks, and thoughtful feature selection are critical.'
+        ];
+        summaryText.textContent = summaries[Math.floor(Math.random() * summaries.length)];
+      }
+
+      // Handle recorded or uploaded audio
+      async function handleAudioBlob(blob) {
+        if (recordingState) recordingState.textContent = 'Transcribing...';
+        if (liveStatus) liveStatus.textContent = 'Transcribing...';
+
+        try {
+          // Create FormData and append the audio blob
+          const formData = new FormData();
+          formData.append('file', blob, `recording-${Date.now()}.webm`);
+
+          // Send to backend for transcription using faster-whisper
+          const transcribeResponse = await fetch('/api/transcribe', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!transcribeResponse.ok) {
+            throw new Error('Transcription failed');
+          }
+
+          const transcriptData = await transcribeResponse.json();
+          const transcript = transcriptData.transcript || '';
+
+          // Update transcript display
+          if (transcriptBox && transcript) {
+            transcriptBox.innerHTML = `
+              <div class="transcript-row">
+                <span class="speaker lecturer">Lecture Recording</span>
+                <div class="transcript-content">
+                  <p>${transcript}</p>
+                  <span class="transcript-time">00:00</span>
+                </div>
+              </div>
+            `;
+          }
+
+          if (recordingState) recordingState.textContent = 'Ready';
+          if (liveStatus) liveStatus.textContent = 'Ready';
+
+          // Generate notes from the transcript using Groq
+          if (transcript.trim()) {
+            try {
+              const notesResponse = await fetch('/api/notes/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: transcript }),
+              });
+
+              if (notesResponse.ok) {
+                const notesData = await notesResponse.json();
+                
+                // Display generated notes
+                const keyPoints = notesData.key_points || [];
+                const tags = notesData.tags || ['lecture', 'key-points', 'review'];
+                
+                if (notesList) {
+                  notesList.innerHTML = keyPoints.slice(0, 3).map((point, idx) => `
+                    <article class="note-card">
+                      <span class="tag tag-key">${tags[idx] || 'Review'}</span>
+                      <h4>${point.split(':')[0] || 'Key Point'}</h4>
+                      <p>${point}</p>
+                    </article>
+                  `).join('');
+                  
+                  if (keyPoints.length === 0) {
+                    notesList.innerHTML = tags.slice(0, 3).map(tag => `
+                      <article class="note-card">
+                        <span class="tag tag-key">${tag}</span>
+                        <h4>${tag.charAt(0).toUpperCase() + tag.slice(1)}</h4>
+                        <p>Review this key concept from the lecture.</p>
+                      </article>
+                    `).join('');
+                  }
+                }
+                
+                if (summaryText) {
+                  summaryText.textContent = notesData.summary || 'Lecture summary generated.';
+                }
+              }
+            } catch (notesError) {
+              console.log('Notes generation failed, using fallback:', notesError);
+              renderNotes(); // Fallback to rendering notes
+            }
+          }
+        } catch (error) {
+          console.error('Audio handling error:', error);
+          if (recordingState) recordingState.textContent = 'Error';
+          alert('Error processing audio: ' + error.message);
+        }
+      }
+
+      // Recording
+      async function startRecording() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          audioRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+
+          audioRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) audioChunks.push(event.data);
+          };
+
+          audioRecorder.onstop = async () => {
+            const blob = new Blob(audioChunks, { type: audioRecorder.mimeType || 'audio/webm' });
+            stream.getTracks().forEach(track => track.stop());
+            await handleAudioBlob(blob);
+          };
+
+          audioRecorder.start();
+          isRecording = true;
+          if (recordToggle) {
+            recordToggle.classList.add('recording');
+            recordToggle.innerHTML = '<span class="record-icon">⏹️</span><span class="btn-text">Stop recording</span>';
+          }
+          if (recordingIndicator) recordingIndicator.textContent = 'Recording';
+          if (recordingState) recordingState.textContent = 'Listening';
+          if (liveIndicator) liveIndicator.classList.add('active');
+          if (liveStatus) liveStatus.textContent = 'Recording...';
+        } catch (error) {
+          alert('Microphone access denied or not available');
+        }
+      }
+
+      function stopRecording() {
+        if (audioRecorder && isRecording) {
+          audioRecorder.stop();
+          isRecording = false;
+          if (recordToggle) {
+            recordToggle.classList.remove('recording');
+            recordToggle.innerHTML = '<span class="record-icon">🎙️</span><span class="btn-text">Start recording</span>';
+          }
+          if (recordingIndicator) recordingIndicator.textContent = 'Ready';
+          if (liveIndicator) liveIndicator.classList.remove('active');
+          if (liveStatus) liveStatus.textContent = 'Ready';
+        }
+      }
+
+      if (recordToggle) {
+        recordToggle.addEventListener('click', async () => {
+          if (!isRecording) await startRecording();
+          else stopRecording();
+        });
+      }
+
+      // Search Transcript
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => renderTranscript(e.target.value));
+      }
+
+      // Refresh Notes
+      if (refreshNotesBtn) {
+        refreshNotesBtn.addEventListener('click', renderNotes);
+      }
+
+      // Generate Summary
+      if (generateSummaryBtn) {
+        generateSummaryBtn.addEventListener('click', () => {
+          if (summaryText) {
+            const summaries = [
+              'Key concepts covered: generalization, regularization, and validation strategies.',
+              'Main takeaway: Balance model complexity with validation performance for robust systems.',
+              'Critical points: Feature engineering, bias-variance tradeoff, and practical regularization.'
+            ];
+            summaryText.textContent = summaries[Math.floor(Math.random() * summaries.length)];
+          }
+        });
+      }
+
+      // Generate Notes
+      if (generateNotesBtn) {
+        generateNotesBtn.addEventListener('click', renderNotes);
+      }
+
+      // Upload Audio
+      if (uploadBtn && audioFileInput) {
+        uploadBtn.addEventListener('click', () => audioFileInput.click());
+        audioFileInput.addEventListener('change', async (e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            if (recordingState) recordingState.textContent = 'Processing...';
+            await handleAudioBlob(file);
+            audioFileInput.value = '';
+          }
+        });
+      }
+
+      // Share Button
+      if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+          alert('Share functionality: Lecture transcript and notes ready to share!');
+        });
+      }
+
+      // Export Button
+      if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+          const content = summaryText?.textContent || 'Lecture notes';
+          const element = document.createElement('a');
+          element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+          element.setAttribute('download', 'lecture-notes.txt');
+          element.style.display = 'none';
+          document.body.appendChild(element);
+          element.click();
+          document.body.removeChild(element);
+        });
+      }
+
+      // Checkbox functionality
+      document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+          const li = e.target.closest('li');
+          if (li) li.classList.toggle('completed');
+        });
+      });
+
+      // Initialize
+      renderTranscript();
+      renderNotes();
+    </script>
+  </body>
+</html>

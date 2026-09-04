@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LectureSense | Notes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <aside class="sidebar">
+        <div class="brand-row">
+          <div class="brand-mark" aria-label="LectureSense logo">
+            <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
+              <defs>
+                <linearGradient id="logoGradientNotes" x1="0%" x2="100%" y1="0%" y2="100%">
+                  <stop offset="0%" stop-color="#2563eb" />
+                  <stop offset="100%" stop-color="#7c3aed" />
+                </linearGradient>
+              </defs>
+              <rect x="10" y="12" width="38" height="40" rx="9" fill="url(#logoGradientNotes)" />
+              <path d="M18 22h22M18 28h22M18 34h16" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M38 18l12 12-14 14-12-12 14-14z" fill="#dbeafe" opacity="0.92"/>
+              <path d="M39 20l9 9-11 11-9-9 11-11z" fill="#ffffff" opacity="0.98"/>
+              <path d="M27 43l6 6 15-15" stroke="#e2e8f0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <p class="eyebrow">Academic AI</p>
+            <h2>LectureSense</h2>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-link">Overview</a>
+          <a href="transcripts.html" class="nav-link">Transcripts</a>
+          <a href="notes.html" class="nav-link active">Notes</a>
+          <a href="index.html" class="nav-link">Landing</a>
+        </nav>
+      </aside>
+
+      <main class="workspace notes-page">
+        <header class="topbar compact-topbar">
+          <div>
+            <p class="eyebrow blue">Knowledge base</p>
+            <h1>AI-generated lecture notes</h1>
+          </div>
+          <button class="btn btn-primary">Export PDF</button>
+        </header>
+
+        <section class="notes-grid">
+          <article class="note-editor panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Summary</p>
+                <h3>Lecture notes</h3>
+              </div>
+              <button class="btn btn-light small">Regenerate</button>
+            </div>
+
+            <div class="editor-box">
+              <h4>Lecture overview</h4>
+              <p>
+                Your AI-generated lecture summary will appear here once a transcript is created or uploaded. The notes workspace is ready to organize ideas, key takeaways, and action items for study.
+              </p>
+
+              <h4>Key concepts</h4>
+              <ul>
+                <li>Clear, searchable study notes</li>
+                <li>Key takeaways generated from the transcript</li>
+                <li>Structured revision checklist</li>
+              </ul>
+
+              <h4>Action items</h4>
+              <ul>
+                <li>Record or upload a lecture to generate notes.</li>
+                <li>Review the transcript summary and mark important ideas.</li>
+                <li>Export the finished notes for sharing or revision.</li>
+              </ul>
+            </div>
+          </article>
+
+          <aside class="panel note-side-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Quick insights</p>
+                <h3>Highlights</h3>
+              </div>
+            </div>
+
+            <div class="mini-note">
+              <span class="tag">Status</span>
+              <h4>Waiting for data</h4>
+              <p>Once a transcript is processed, the most relevant concepts and summaries will appear here.</p>
+            </div>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const API_BASE = (() => {
+        const origin = window.location.origin;
+        if (origin && origin !== 'null') {
+          return origin;
+        }
+        return 'http://localhost:8000';
+      })();
+
+      async function backendIsAvailable() {
+        try {
+          const response = await fetch(`${API_BASE}/health`, { cache: 'no-store' });
+          if (!response.ok) {
+            return false;
+          }
+
+          const data = await response.json().catch(() => ({}));
+          return !!data.status;
+        } catch (error) {
+          return false;
+        }
+      }
+
+      async function hydrateNotes() {
+        const summaryTitle = document.querySelector('.note-editor h3');
+        const editorBox = document.querySelector('.editor-box');
+        const highlightPanel = document.querySelector('.note-side-panel');
+
+        const backendReady = await backendIsAvailable();
+        if (!backendReady) {
+          console.warn('Notes screen could not reach the backend. Start the FastAPI app on port 8000 or open the app through the local server.');
+
+          if (summaryTitle) {
+            summaryTitle.textContent = 'Lecture summary';
+          }
+
+          if (editorBox) {
+            editorBox.innerHTML = `
+              <h4>Lecture overview</h4>
+              <p>The notes service is currently unavailable. Start the app from the local server or refresh after the backend is running.</p>
+              <h4>Key concepts</h4>
+              <ul>
+                <li>Generalization and model reliability</li>
+                <li>Validation and learning stability</li>
+                <li>Reviewing terminology and practical takeaways</li>
+              </ul>
+              <h4>Action items</h4>
+              <ul>
+                <li>Start the FastAPI app on port 8000.</li>
+                <li>Refresh this page once the backend is live.</li>
+                <li>Continue reviewing the lecture material in the meantime.</li>
+              </ul>
+            `;
+          }
+
+          if (highlightPanel) {
+            highlightPanel.innerHTML = `
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Quick insights</p>
+                  <h3>Highlights</h3>
+                </div>
+              </div>
+              <div class="mini-note">
+                <span class="tag">System</span>
+                <h4>Backend offline</h4>
+                <p>The notes API is not reachable from this page yet. Once the server is running, this panel will hydrate with your saved notes.</p>
+              </div>
+            `;
+          }
+
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_BASE}/api/notes`, { cache: 'no-store' });
+
+          if (!response.ok) {
+            throw new Error(`Notes API returned ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (summaryTitle && data.notes?.length) {
+            const latest = data.notes[data.notes.length - 1];
+            summaryTitle.textContent = latest.title || 'Lecture summary';
+          }
+
+          if (editorBox && data.notes?.length) {
+            const latest = data.notes[data.notes.length - 1];
+            editorBox.innerHTML = `
+              <h4>Lecture overview</h4>
+              <p>${latest.summary}</p>
+              <h4>Key concepts</h4>
+              <ul>
+                <li>Generalization and model reliability</li>
+                <li>Validation and learning stability</li>
+                <li>Reviewing terminology and practical takeaways</li>
+              </ul>
+              <h4>Action items</h4>
+              <ul>
+                <li>Review the summary and highlight the central concepts.</li>
+                <li>Cross-check the transcript with your lecture notes.</li>
+                <li>Turn key themes into short revision bullets.</li>
+              </ul>
+            `;
+          }
+
+          if (highlightPanel && data.notes?.length) {
+            const latest = data.notes[data.notes.length - 1];
+            highlightPanel.innerHTML = `
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Quick insights</p>
+                  <h3>Highlights</h3>
+                </div>
+              </div>
+              <div class="mini-note">
+                <span class="tag">Summary</span>
+                <h4>${latest.title}</h4>
+                <p>${latest.summary}</p>
+              </div>
+            `;
+          }
+        } catch (error) {
+          console.warn('Notes screen could not reach the backend. Start the FastAPI app on port 8000 or open the app through the local server.', error);
+
+          if (summaryTitle) {
+            summaryTitle.textContent = 'Lecture summary';
+          }
+
+          if (editorBox) {
+            editorBox.innerHTML = `
+              <h4>Lecture overview</h4>
+              <p>The notes service is currently unavailable. Start the app from the local server or refresh after the backend is running.</p>
+              <h4>Key concepts</h4>
+              <ul>
+                <li>Generalization and model reliability</li>
+                <li>Validation and learning stability</li>
+                <li>Reviewing terminology and practical takeaways</li>
+              </ul>
+              <h4>Action items</h4>
+              <ul>
+                <li>Start the FastAPI app on port 8000.</li>
+                <li>Refresh this page once the backend is live.</li>
+                <li>Continue reviewing the lecture material in the meantime.</li>
+              </ul>
+            `;
+          }
+
+          if (highlightPanel) {
+            highlightPanel.innerHTML = `
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Quick insights</p>
+                  <h3>Highlights</h3>
+                </div>
+              </div>
+              <div class="mini-note">
+                <span class="tag">System</span>
+                <h4>Backend offline</h4>
+                <p>The notes API is not reachable from this page yet. Once the server is running, this panel will hydrate with your saved notes.</p>
+              </div>
+            `;
+          }
+        }
+      }
+
+      hydrateNotes();
+    </script>
+  </body>
+</html>
